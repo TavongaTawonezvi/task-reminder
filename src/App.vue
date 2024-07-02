@@ -1,17 +1,15 @@
 <template>
  <div class="container">
   <Header @show-task-form="this.showAddTask = !this.showAddTask" :toggleAddButton='showAddTask' title="Task Tracker"/>
-  <div v-show="showAddTask">
-    <AddTask @add-task='addTask' />
-  </div>
-  <Tasks @toggle-reminder='toggleReminder' @delete-task='deleteTask' v-bind:tasks="tasks"/>
+  
+  <router-view :showAddTask="showAddTask"> </router-view> 
+  <Footer/>
  </div>
 </template>
 
 <script>
 import Header from './components/Header'
-import Tasks from './components/Tasks'
-import AddTask from './components/AddTask'
+import Footer from './components/Footer'
 
 
 
@@ -19,56 +17,14 @@ export default {
   name: 'App',
   components: {
     Header,
-    Tasks,
-    AddTask,
+    Footer,
   },
   data() {
     return {
-      tasks: [],
       showAddTask: false,
     }
   },
-  methods: {
-    async deleteTask(id) {
-      if(confirm('Are you sure?')){
-        const res = await fetch('api/tasks/'+ id, {
-          method: 'DELETE',
-        })
-
-        res.status === 200 ? (this.tasks = this.tasks.filter((task) => task.id !== id)) : alert('Error deleting task')
-
-
-      }
-    },
-    toggleReminder(id){
-      console.log(id)
-      this.tasks = this.tasks.map((task) => task.id === id ? { ...task, reminder: !task.reminder } : task)
-    },
-    async addTask(task) {
-      const res = await fetch('api/tasks', {
-        method: 'POST',
-        headers: {
-          'Content-type': 'application/json'
-        },
-        body: JSON.stringify(task)
-      })
-      const data = await res.json()
-      this.tasks = [...this.tasks, data]
-    },
-    async fetchTasks() {
-      const  res = await fetch('api/tasks')
-      const data = await res.json()
-      return data
-    },
-    async fetchTask(id) {
-      const  res = await fetch(`api/tasks/${id}`)
-      const data = await res.json()
-      return data
-    }
-  },
-  async created() {
-    this.tasks = await this.fetchTasks()
-  }
+  
 }
 </script>
 
